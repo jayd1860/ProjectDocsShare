@@ -1,7 +1,6 @@
 import os
 import sys
 
-
 sys.stdout.write('Importing search paths ...\n')
 
 # Add search paths to sys.path
