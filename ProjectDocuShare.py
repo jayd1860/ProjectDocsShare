@@ -6,7 +6,7 @@ from pathlib import Path
 #from Utils import mypathlib
 
 
-class ProjectDocsShare:
+class ProjectDocuShare:
 
     # ------------------------------------------------------------------
     def __init__(self, platformId=None):

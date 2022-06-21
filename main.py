@@ -1,6 +1,6 @@
 import sys
 from Utils import strlib
-from ProjectDocsShare import ProjectDocsShare
+from ProjectDocuShare import ProjectDocuShare
 
 APP_KEY = "3h3ft83fmamys5f"
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         op = 'Create New Customer'
         customerName = ''
 
-    dbx = ProjectDocsShare(APP_KEY)
+    dbx = ProjectDocuShare(APP_KEY)
     customersExisting = dbx.GetCustomers()
 
     while 1:
