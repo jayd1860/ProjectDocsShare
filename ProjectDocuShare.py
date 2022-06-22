@@ -23,28 +23,28 @@ class ProjectDocuShare:
         self.platform = []
         self.customerList = []
         self.customerList = []
-        self.Connect()
-        self.GetCustomers()
+        self.authorize_url = ''
+        self.auth_flow = []
+
+        self.GetAuthCode()
+
+    # -------------------------------------------------------------------
+    def GetAuthCode(self):
+        self.auth_flow = DropboxOAuth2FlowNoRedirect(self.platformId, use_pkce=True, token_access_type='offline')
+        self.authorize_url = self.auth_flow.start()
+        webbrowser.open_new(self.authorize_url)
 
 
     # -------------------------------------------------------------------
-    def Connect(self):
-        auth_flow = DropboxOAuth2FlowNoRedirect(self.platformId, use_pkce=True, token_access_type='offline')
-        authorize_url = auth_flow.start()
-        webbrowser.open_new(authorize_url)
-        print("1. Click \"Allow\" (you might have to log in first).")
-        print("2. Copy the authorization code.")
-        auth_code = input("Enter the authorization code here: ").strip()
-
+    def Connect(self, auth_code):
         oauth_result = []
         try:
-            oauth_result = auth_flow.finish(auth_code)
+            oauth_result = self.auth_flow.finish(auth_code)
         except Exception as e:
             print('Error: %s'% e)
-            exit(1)
-
+            return -1
         self.platform = dropbox.Dropbox(oauth2_refresh_token=oauth_result.refresh_token, app_key=self.platformId)
-
+        return 0
 
     # -------------------------------------------------------------------
     def GetCustomers(self, test = False):

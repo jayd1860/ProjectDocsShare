@@ -2,6 +2,12 @@ import sys
 from AutoGenerateNewCustomerName import AutoGenerateNewCustomerName
 
 def ConsoleUI(dbx):
+    print("1. Click \"Allow\" (you might have to log in first).")
+    print("2. Copy the authorization code.")
+    auth_code = input("Enter the authorization code here: ").strip()
+    if dbx.Connect(auth_code) < 0:
+        exit(-1)
+
     while 1:
         opstr = sys.stdout.write("Enter operation: \n")
         sys.stdout.write("    1. list customers\n")
