@@ -1,11 +1,16 @@
 import sys
 import dropbox
 from dropbox import DropboxOAuth2FlowNoRedirect
+from PyQt5 import QtWidgets
+import webbrowser
+
 from Utils import strlib
 from pathlib import Path
-#from Utils import mypathlib
+from MainGUI import MainGUI
+from ConsoleUI import ConsoleUI
 
 
+#######################################################################################
 class ProjectDocuShare:
 
     # ------------------------------------------------------------------
@@ -26,9 +31,9 @@ class ProjectDocuShare:
     def Connect(self):
         auth_flow = DropboxOAuth2FlowNoRedirect(self.platformId, use_pkce=True, token_access_type='offline')
         authorize_url = auth_flow.start()
-        print("1. Go to: " + authorize_url)
-        print("2. Click \"Allow\" (you might have to log in first).")
-        print("3. Copy the authorization code.")
+        webbrowser.open_new(authorize_url)
+        print("1. Click \"Allow\" (you might have to log in first).")
+        print("2. Copy the authorization code.")
         auth_code = input("Enter the authorization code here: ").strip()
 
         oauth_result = []
@@ -42,7 +47,7 @@ class ProjectDocuShare:
 
 
     # -------------------------------------------------------------------
-    def GetCustomers(self, test=False):
+    def GetCustomers(self, test = False):
         self.customerList = []
         if type(test) is str:
             if test == 'Test':
@@ -58,7 +63,7 @@ class ProjectDocuShare:
         for ii in range(0,len(entries)-1):
             p = Path(entries[ii].path_display)
             if len(p.parts) == nParts:
-                if test == False:
+                if not test:
                     if len(strlib.findstr(entries[ii].path_display, 'Archive')) > 0:
                         continue
                 else:
@@ -78,4 +83,32 @@ class ProjectDocuShare:
         sys.stdout.write('Creating new customer folder %s\n'%  customerRootDir)
         self.platform.files_create_folder_v2(customerRootDir)
 
+
+
+# -----------------------------------------------------
+def MainGUI_Launch(dbx):
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = MainGUI(MainWindow, dbx)
+    app.exec_()
+
+
+
+# --------------------------------------------------------------------------
+if __name__ == '__main__':
+    appkey = 'xxxxxxxxx'
+    uitype = 'GUI'
+    if len(sys.argv) == 2:
+        appkey = sys.argv[1]
+    elif len(sys.argv) == 3:
+        appkey = sys.argv[1]
+        uitype = sys.argv[2]
+    else:
+        exit(-1)
+
+    dbx = ProjectDocuShare(appkey)
+    if uitype.lower() == 'console':
+        ConsoleUI(dbx)
+    elif uitype.lower() == 'gui':
+        MainGUI_Launch(dbx)
 
