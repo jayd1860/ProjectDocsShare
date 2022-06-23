@@ -21,10 +21,20 @@ class ProjectDocuShare:
         self.rootDir = '/Customers'
         self.rootDirTest = '/Customers/Archive/Test'
         self.platform = []
+        self.entries = []
         self.customerList = []
-        self.customerList = []
+        self.projectList = []
         self.authorize_url = ''
         self.auth_flow = []
+        self.projectStructure = [
+            'Action Items  (RFI, RFC, RFP, RFA)',
+            'Change Orders',
+            'Communications',
+            'Field Drawings',
+            'Plans',
+            'SOV',
+            'Submittals'
+            ]
 
         self.GetAuthCode()
 
@@ -37,14 +47,21 @@ class ProjectDocuShare:
 
     # -------------------------------------------------------------------
     def Connect(self, auth_code):
-        oauth_result = []
         try:
             oauth_result = self.auth_flow.finish(auth_code)
         except Exception as e:
             print('Error: %s'% e)
             return -1
         self.platform = dropbox.Dropbox(oauth2_refresh_token=oauth_result.refresh_token, app_key=self.platformId)
+        self.Update()
         return 0
+
+
+    # -------------------------------------------------------------------
+    def Update(self):
+        response = self.platform.files_list_folder(self.rootDir, recursive=True)
+        self.entries = self.platform.files_list_folder_continue(response.cursor).entries
+
 
     # -------------------------------------------------------------------
     def GetCustomers(self, test = False):
@@ -58,19 +75,44 @@ class ProjectDocuShare:
             nParts = 5
         else:
             nParts = 3
-        response = self.platform.files_list_folder(self.rootDir, recursive=True)
-        entries = self.platform.files_list_folder_continue(response.cursor).entries
-        for ii in range(0,len(entries)-1):
-            p = Path(entries[ii].path_display)
+        for ii in range(0,len(self.entries)-1):
+            p = Path(self.entries[ii].path_display)
             if len(p.parts) == nParts:
                 if not test:
-                    if len(strlib.findstr(entries[ii].path_display, 'Archive')) > 0:
+                    if len(strlib.findstr(self.entries[ii].path_display, 'Archive')) > 0:
                         continue
                 else:
-                    if len(strlib.findstr(entries[ii].path_display, 'Archive')) == 0:
+                    if len(strlib.findstr(self.entries[ii].path_display, 'Archive')) == 0:
                         continue
                 self.customerList.append(p.parts[nParts-1])
         return self.customerList
+
+
+    # -------------------------------------------------------------------
+    def GetProjects(self, customerName, test = False):
+        self.projectList = []
+        if type(test) is str:
+            if test == 'Test':
+                test = True
+            else:
+                test = False
+        if test:
+            nParts = 6
+        else:
+            nParts = 4
+        for ii in range(0,len(self.entries)-1):
+            p = Path(self.entries[ii].path_display)
+            if len(p.parts) == nParts:
+                if not test:
+                    if len(strlib.findstr(self.entries[ii].path_display, 'Archive')) > 0:
+                        continue
+                else:
+                    if len(strlib.findstr(self.entries[ii].path_display, 'Archive')) == 0:
+                        continue
+                self.projectList.append(p.parts[nParts-1])
+        return self.projectList
+
+
 
 
     # -------------------------------------------------------------------
@@ -84,12 +126,27 @@ class ProjectDocuShare:
         self.platform.files_create_folder_v2(customerRootDir)
 
 
+    # -------------------------------------------------------------------
+    def CreateProject(self, customerName, projectName):
+        if len(strlib.findstr(customerName, 'Test')):
+            customerRootDir = self.rootDirTest + '/' + customerName
+        else:
+            customerRootDir = self.rootDir + '/' + customerName
+
+        sys.stdout.write('Adding project %s to customer %s\n'%  (customerRootDir, projectName))
+        sys.stdout.write('--------------------------------------\n')
+        projectRootDir = customerRootDir + '/' + projectName
+        for ii in range(0,len(self.projectStructure)):
+            sys.stdout.write('    Adding  %s\n'%  (projectRootDir + '/' + self.projectStructure[ii]))
+            # self.platform.files_create_folder_v2(customerRootDir)
+
+
 
 # -----------------------------------------------------
 def MainGUI_Launch(dbx):
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = MainGUI(MainWindow, dbx)
+    MainGUI(MainWindow, dbx)
     app.exec_()
 
 
