@@ -7,8 +7,6 @@
     <list default="true" id="841d2571-b420-4e8b-bfb0-f4a189b02439" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MainGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainGUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MainGUI_0.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainGUI_0.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MainGUI_0.ui" beforeDir="false" afterPath="$PROJECT_DIR$/MainGUI_0.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ProjectDocuShare.py" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectDocuShare.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -179,11 +177,6 @@
           <url>file://$PROJECT_DIR$/Utils/strlib.py</url>
           <line>97</line>
           <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/MainGUI.py</url>
-          <line>39</line>
-          <option name="timeStamp" value="21" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

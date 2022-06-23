@@ -38,6 +38,7 @@ class ProjectDocuShare:
 
         self.GetAuthCode()
 
+
     # -------------------------------------------------------------------
     def GetAuthCode(self):
         self.auth_flow = DropboxOAuth2FlowNoRedirect(self.platformId, use_pkce=True, token_access_type='offline')
@@ -89,31 +90,28 @@ class ProjectDocuShare:
 
 
     # -------------------------------------------------------------------
-    def GetProjects(self, customerName, test = False):
+    def GetProjects(self, customerName):
         self.projectList = []
-        if type(test) is str:
-            if test == 'Test':
-                test = True
-            else:
-                test = False
-        if test:
-            nParts = 6
-        else:
-            nParts = 4
         for ii in range(0,len(self.entries)-1):
             p = Path(self.entries[ii].path_display)
-            if len(p.parts) == nParts:
-                if not test:
-                    if len(strlib.findstr(self.entries[ii].path_display, 'Archive')) > 0:
-                        continue
-                else:
-                    if len(strlib.findstr(self.entries[ii].path_display, 'Archive')) == 0:
-                        continue
-                self.projectList.append(p.parts[nParts-1])
+            if not p.parts[2] == customerName:
+                continue
+            if self.IsProjectDir(p):
+                self.projectList.append(p.parts[-1])
         return self.projectList
 
 
-
+    # -------------------------------------------------------------------
+    def IsProjectDir(self, p):
+        projectNameTentative = p.parts[-1]
+        nChecks = 0
+        for ii in range(0, len(self.entries)-1):
+            p = Path(self.entries[ii].path_display)
+            if p.parts[-2] == projectNameTentative and self.projectStructure.count(p.parts[-1]) > 0:
+                nChecks = nChecks+1
+                if nChecks >= len(self.projectStructure):
+                    return True
+        return False
 
     # -------------------------------------------------------------------
     def CreateCustomer(self, customerName):
@@ -133,12 +131,15 @@ class ProjectDocuShare:
         else:
             customerRootDir = self.rootDir + '/' + customerName
 
-        sys.stdout.write('Adding project %s to customer %s\n'%  (customerRootDir, projectName))
-        sys.stdout.write('--------------------------------------\n')
+        s = 'Adding project %s to customer %s\n'%  (customerRootDir, projectName)
+        sys.stdout.write('%s\n'% ('-' * (len(s)-1)))
+        sys.stdout.write(s)
+        sys.stdout.write('%s\n'% ('-' * (len(s)-1)))
         projectRootDir = customerRootDir + '/' + projectName
         for ii in range(0,len(self.projectStructure)):
-            sys.stdout.write('    Adding  %s\n'%  (projectRootDir + '/' + self.projectStructure[ii]))
-            # self.platform.files_create_folder_v2(customerRootDir)
+            projectSubdir = projectRootDir + '/' + self.projectStructure[ii]
+            sys.stdout.write('    Adding  %s\n'%  projectSubdir)
+            self.platform.files_create_folder_v2(projectSubdir)
 
 
 
@@ -146,7 +147,7 @@ class ProjectDocuShare:
 def MainGUI_Launch(dbx):
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    MainGUI(MainWindow, dbx)
+    ui = MainGUI(MainWindow, dbx)
     app.exec_()
 
 

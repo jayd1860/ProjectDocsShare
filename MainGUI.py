@@ -37,16 +37,15 @@ class MainGUI(Ui_MainWindow):
 
     # --------------------------------------------------------
     def pushButtonLogin_Callback(self):
-        sys.stdout.write('Testing pushButtonLogin_Callback\n')
-        # auth_code = self.plainTextEditAuthenticationKey.toPlainText()
-        # if self.dbx.Connect(auth_code) < 0:
-        #     self.DisplayErrorMsg('Invalid authorization code. Please try again.')
-        #     return
-        # self.pushButtonLogin.hide()
-        # self.plainTextEditAuthenticationKey.hide()
-        # self.pushButtonLogin.update()
-        # self.plainTextEditAuthenticationKey.update()
-        # self.UpdateCustomerList()
+        auth_code = self.plainTextEditAuthenticationKey.toPlainText()
+        if self.dbx.Connect(auth_code) < 0:
+            self.DisplayErrorMsg('Invalid authorization code. Please try again.')
+            return
+        self.pushButtonLogin.hide()
+        self.plainTextEditAuthenticationKey.hide()
+        self.pushButtonLogin.update()
+        self.plainTextEditAuthenticationKey.update()
+        self.UpdateCustomerList()
 
 
     # --------------------------------------------------------
@@ -73,14 +72,13 @@ class MainGUI(Ui_MainWindow):
         self.listWidgetProjectList.clear()
         customerName = self.listWidgetCustomerList.item(self.listWidgetCustomerList.currentRow()).text()
         sys.stdout.write('Selected item %s\n'% customerName)
-        projectList = self.dbx.GetProjects(customerName)
-        #for ii in range(0,len(self.entries)):
+        self.UpdateProjectList()
 
 
     # --------------------------------------------------------
     def pushButtonAddCustomer_Callback(self):
         customerNameNew = self.plainTextEditNewCustomerName.toPlainText()
-        customerList = self.dbx.GetCustomers('Test')
+        customerList = self.dbx.GetCustomers()
         for ii in range(0, len(customerList)):
             if customerNameNew == customerList[ii]:
                 return
@@ -108,7 +106,7 @@ class MainGUI(Ui_MainWindow):
     # --------------------------------------------------------
     def UpdateCustomerList(self):
         self.listWidgetCustomerList.clear()
-        customerList = self.dbx.GetCustomers('Test')
+        customerList = self.dbx.GetCustomers()
         for ii in range(0, len(customerList)):
             sys.stdout.write('Adding customer %s  ...\n'% customerList[ii])
             self.listWidgetCustomerList.insertItem(ii, customerList[ii])
@@ -118,11 +116,15 @@ class MainGUI(Ui_MainWindow):
     # --------------------------------------------------------
     def UpdateProjectList(self):
         self.listWidgetProjectList.clear()
-        customerList = self.dbx.GetCustomers('Test')
-        for ii in range(0, len(customerList)):
-            k = strlib
-            sys.stdout.write('Adding customer %s  ...\n'% customerList[ii])
-            self.listWidgetProjectList.insertItem(ii, customerList[ii])
+        iSelection = self.listWidgetCustomerList.currentRow()
+        if iSelection < 0:
+            self.DisplayErrorMsg('No customer selected. Please first select a customer, then add project.')
+            return
+        customerName = self.listWidgetCustomerList.item(iSelection).text()
+        projectList = self.dbx.GetProjects(customerName)
+        for ii in range(0, len(projectList)):
+            sys.stdout.write('Adding customer %s  ...\n'% projectList[ii])
+            self.listWidgetProjectList.insertItem(ii, projectList[ii])
             self.listWidgetProjectList.update()
 
 
